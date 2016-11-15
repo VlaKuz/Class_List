@@ -24,12 +24,12 @@ public:
 	List_node<ValType>* Search (ValType);
 	ValType& operator[](int);
 	bool Empty_list();
-	void Add(ValType ,int);
+	void Add(ValType ,List_node<ValType> *);
 	void AddWithBegin(ValType);
 	void AddWithEnd(ValType);
 
-	void DeleteNodeWithPos(int);
-	void DeleteNodeWithBegin();
+	void DeleteNodeWithPos(List_node<ValType> *);
+	ValType DeleteNodeWithBegin();
 	void DeleteNodeWithEnd();
 
 	friend ostream & operator << (ostream &out, const List &p);
@@ -139,19 +139,14 @@ ValType& List<ValType>::operator[](int ind)
 }/*---------------------------------------------------------------------*/
 
 template <class ValType>
-void List<ValType>::Add(ValType data_node,int pos)
+void List<ValType>::Add(ValType data_node,List_node<ValType> *p)
 {
-	if ((pos>=0) && (pos<size_list))
+	if (p)
 	{
-		List_node<ValType>* list=first;
-		List_node<ValType>* node=new List_node<ValType>;
-		node->data=data_node;
-	for (int i=0; i<pos-1; ++i)
-	{
-		list=list->next;
-	}
-	node->next=list->next;
-	list->next=node;
+	List_node<ValType>* node=new List_node<ValType>;
+	node->data=data_node;
+	node->next=p->next;
+	p->next=node;
 	++size_list;
 	}
 	else
@@ -199,18 +194,13 @@ List_node<ValType>* List<ValType>::Search(ValType data_node)
 }/*---------------------------------------------------------------------*/
 
 template <class ValType>
-void List<ValType>::DeleteNodeWithPos(int pos)
+void List<ValType>::DeleteNodeWithPos(List_node<ValType> *p)
 {
-	if ((pos>=0) && (pos<size_list) && (first!=0))
+	if ((p) && (first!=0))
 	{
-		List_node<ValType>* list=first;
-		for (int i=0; i<pos-1; ++i)
-		{
-			list=list->next;
-		}
-		List_node<ValType>* node=list->next->next;
-		delete list->next;
-		(list->next)=node;
+		List_node<ValType>* node=p->next->next;
+		delete p->next;
+		(p->next)=node;
 		--size_list;
 
 	}
@@ -219,14 +209,16 @@ void List<ValType>::DeleteNodeWithPos(int pos)
 }/*---------------------------------------------------------------------*/
 
 template <class ValType>
-void List<ValType>::DeleteNodeWithBegin()
+ValType List<ValType>::DeleteNodeWithBegin()
 {
 		if (first!=0)
 		{
 		List_node<ValType>* node=first->next;
+		ValType Res=first->data;
 		delete first;
 		first=node;
 		--size_list;
+		return Res;
 		}
 		else
 		throw 1;
@@ -249,7 +241,46 @@ void List<ValType>::DeleteNodeWithEnd()
 			throw 1;
 }/*---------------------------------------------------------------------*/
 
+template <class ValType>
+class Stack {
+	List <ValType> Mem;
+public:
+	Stack();
+	bool EmptyStack();
+	void PushElem(const ValType);
+	ValType DelElem();
+	ValType RetTopElem();
+};
 
+template <class ValType> 
+Stack <ValType>::Stack()
+{
+}/*---------------------------------------------------------------------*/
 
+template <class ValType> 
+bool Stack<ValType>::EmptyStack()
+{
+	return Mem.Empty_list();
+}/*---------------------------------------------------------------------*/
 
+template <class ValType>
+void Stack <ValType>::PushElem(const ValType elem)
+{
+	Mem.AddWithBegin(elem);
+}/*---------------------------------------------------------------------*/
+
+template <class ValType>
+ValType Stack <ValType>::DelElem()
+{
+	return Mem.DeleteNodeWithBegin();
+}/*---------------------------------------------------------------------*/
+
+template <class ValType>
+ValType Stack <ValType>::RetTopElem()
+{
+	ValType temp=Mem.DeleteNodeWithBegin();
+	Mem.AddWithBegin(temp);
+	return temp;
+}/*---------------------------------------------------------------------*/
+	
 #endif
